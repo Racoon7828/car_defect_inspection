@@ -218,3 +218,81 @@ RUN_NAME = "train_4"
 # 변경 후 (자동)
 RUN_NAME = f"train_{datetime.now().strftime('%Y%m%d_%H%M')}"
 ```
+
+---
+
+## 잔여 이슈 수정 및 데이터셋 재분할 (2026-08-03)
+
+**검토 기준:** REVIEW.md
+
+### [M-5] app.py — 최소 이미지 크기 검증 추가
+
+100x100px 미만 이미지 업로드 시 차단하는 방어 코드 추가 (엣지 케이스 오탐 방지)
+
+### [M-6] analysis.ipynb Section 4 — 실제 추론 결과로 교체
+
+`np.random` 가상 시뮬레이션 데이터를 제거하고, test셋(80장)에 실제 YOLO 추론을 돌려 5장 단위 배치로 묶어 불량률 추이 시각화로 교체
+
+### [N-2] merge_datasets.py — 파일명 접미사 해시화
+
+`ds_folder[:8]` 앞 8글자 절단 방식 → `hashlib.md5(ds_folder)` 해시(8자) + `split` 조합으로 변경, 파일명 충돌 위험 제거
+
+### data/data.yaml — 경로 재해석 버그 수정
+
+ultralytics 버전 업그레이드로 인해 `data.yaml`(이 `data/` 폴더 안에 위치)의 상대경로가 `data/` + `data/train/images`로 중복 해석되어 학습이 실패하는 문제 발견. `train/val/test` 경로에서 중복된 `data/` 접두사 제거로 해결 (`data/train/images` → `train/images`).
+
+### resplit_dataset.py 신설 — 데이터셋 층화 재분할
+
+기존 train(15,210)/valid(679)/test(80) 분할은 test셋이 지나치게 작고(14 인스턴스, 6/17 클래스만 등장) 신뢰도가 낮았음.
+
+- 전체 이미지를 "family"(원본 + `augment.py` 증강본) 단위로 그룹화해, 증강 이미지가 원본과 다른 split에 들어가는 데이터 유출을 방지
+- family가 포함한 클래스 중 전역적으로 가장 희귀한 클래스를 기준으로 그룹화 후 80/10/10 분할 → 희귀 클래스도 valid/test에 비례 배정
+- 결과: train_v2 12,843 / valid_v2 1,551 / test_v2 1,575장
+- 발견: `Bodypanel-Dent` 클래스는 family가 4개뿐 — 기존 "203개 인스턴스"는 원본 사진 3~4장을 증강으로 부풀린 것으로 확인. 원본 데이터 자체의 다양성 부족.
+
+### DEFECT_CLASSES.md 신설
+
+17개 탐지 클래스를 카테고리(덴트/램프/유리/미러)별로 정리한 문서 추가
+
+### YOLO26n 비교 실험
+
+기존 YOLO11n(Recall 0.537로 낮음) 대비 차세대 아키텍처 YOLO26n 비교 학습 진행. 동일 조건(같은 데이터, epoch 21)에서 YOLO26n이 mAP50 +4.5%, Recall +13.4%, mAP50-95 +6.6% 우세, Precision만 소폭 하락. 21/50 epoch에서 학습 중단(성능 개선 추세 확인 후 조기 종료 판단). epoch당 학습 시간은 YOLO26n이 약 1.6배 느림.
+
+`test_v2`로 두 모델을 재검증 시도했으나, 두 모델 모두 옛 분할(`data/train`) 기준으로 학습되어 `test_v2`와 학습 데이터가 겹치는 데이터 유출 발견 — 해당 결과는 무효 처리. `train_v2` 기준 재학습 없이는 공정한 재검증 불가.
+
+상세 내용은 [MODEL_COMPARISON.md](MODEL_COMPARISON.md) 참고.
+
+### README.md 갱신
+
+데이터셋 병합·재분할 과정 반영, `data/` 폴더가 GitHub에 없다는 점과 Google Drive 다운로드 안내 추가, 프로젝트 구조에 신규 파일 반영
+
+---
+
+## YOLO26n v2 재학습 — 유출 없는 최종 검증 (2026-08-03)
+
+옛 분할(`data/train`) 기준 학습된 모델로 `test_v2`를 검증했더니 두 모델 다 학습 데이터와 test_v2가 겹쳐 결과가 오염됨을 발견(자세한 내용은 [MODEL_COMPARISON.md](MODEL_COMPARISON.md)). `train_v2`(12,843장, family 단위 유출 방지 처리됨)로 YOLO26n을 처음부터 50 epoch 재학습.
+
+- `data/data_v2.yaml` 신설 (train_v2/valid_v2/test_v2 참조)
+- `train.py`의 `DATA_YAML`을 `data/data_v2.yaml`로 변경
+- 재학습 전 split 정합성(이미지 수, 파일명 중복, family 유출) 전수 검증 — 문제 없음 확인
+- **valid_v2 최종(50epoch)**: mAP50 0.881, Precision 0.874, Recall 0.831
+- **test_v2 최종 검증(유출 없음, 신뢰 가능)**: mAP50 0.830, mAP50-95 0.707, Precision 0.835, Recall 0.796
+- YOLO11n은 시간 관계상 v2 재학습 미실시 — 필요 시 추후 동일 절차로 진행 예정
+
+### 발견된 버그: train.py 결과 경로 불일치 — 수정 완료 (2026-08-03)
+
+학습 후처리(학습곡선 그래프 저장) 단계에서 `FileNotFoundError` 발생. `train.py`가 `results.csv` 경로를 `f"{PROJECT}/{RUN_NAME}/..."`로 수동 조합하는데, 실제 ultralytics가 저장하는 경로는 `runs/detect/runs/{RUN_NAME}/...`로 한 단계 더 중첩됨(버전 변화로 인한 구조 차이, `data.yaml` 경로 버그와 같은 계열). 모델 가중치 저장 자체는 정상이었음.
+
+> `model.train()`의 반환값(`DetMetrics`)에는 `save_dir` 속성이 없어(`results.save_dir` 시도는 실패) `model.trainer.save_dir`을 사용하도록 수정. 경로를 수동 조합하지 않고 실제 트레이너가 사용한 경로를 그대로 참조하므로 향후 ultralytics 버전이 다시 바뀌어도 안전함.
+> 1 epoch/데이터 2% 스모크 테스트로 정상 동작 확인 (`SAVE_DIR`가 `runs/detect/runs/smoketest`로 정확히 출력, CSV 로드·그래프 저장 성공).
+
+### 프로젝트 정리
+
+불필요해진 파일/폴더 삭제:
+- `train_yolo26n.log` (중단된 옛 실험 로그, 수치는 MODEL_COMPARISON.md에 기록됨)
+- `data/data_abs.yaml`, `data/data_test_v2.yaml` (트러블슈팅용 임시 yaml, `data_v2.yaml`로 대체)
+- `data/processed/`, `data/raw/` (빈 폴더, 미사용 — REVIEW.md N-3에서 지적된 항목)
+- `runs/detect/runs/smoketest/`, `train_20260803_1639/`(최초 실패 시도), `train_20260803_1707/`(중단된 옛 분할 21epoch 실험, v2 결과로 대체됨)
+- `runs/detect/val`, `val-2`~`val-5` (데이터 유출로 무효 처리된 예전 검증 결과물)
+
+`runs/detect/runs/train_20260803_1918/`(v2 최종 학습)과 `runs/detect/val-6/`(v2 최종 검증 결과물)는 보존.

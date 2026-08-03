@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from datetime import datetime
 
-DATA_YAML = "data/data.yaml"
+DATA_YAML = "data/data_v2.yaml"  # 층화 재분할본 (train_v2/valid_v2/test_v2), 데이터 유출 없는 공정한 검증용
 MODEL     = "yolo26n.pt"       # YOLO26 nano — YOLO11n과 연산량 동일, 차세대 아키텍처(recall/CPU속도 개선 기대)
 EPOCHS    = 50
 IMG_SIZE  = 640
@@ -21,7 +21,7 @@ RUN_NAME  = f"train_{datetime.now().strftime('%Y%m%d_%H%M')}"  # 자동 타임�
 def main():
     model = YOLO(MODEL)
 
-    results = model.train(
+    model.train(
         data=DATA_YAML,
         epochs=EPOCHS,
         imgsz=IMG_SIZE,
@@ -34,11 +34,16 @@ def main():
         exist_ok=True,
     )
 
+    # ultralytics 버전에 따라 project/name 조합과 실제 저장 경로가 달라질 수 있어(예: runs/detect/runs/... 로 중첩),
+    # 경로를 수동 조합하지 않고 트레이너가 실제로 사용한 save_dir을 사용
+    # (model.train()의 반환값인 results는 DetMetrics라 save_dir이 없음 — model.trainer.save_dir을 써야 함)
+    save_dir = model.trainer.save_dir
+
     print("\n=== 학습 완료 ===")
-    print(f"최적 모델 저장 위치: {PROJECT}/{RUN_NAME}/weights/best.pt")
+    print(f"최적 모델 저장 위치: {save_dir}/weights/best.pt")
 
     # 학습 결과 CSV → pandas 분석
-    csv_path = f"{PROJECT}/{RUN_NAME}/results.csv"
+    csv_path = save_dir / "results.csv"
     df = pd.read_csv(csv_path)
     df.columns = df.columns.str.strip()
 
@@ -56,8 +61,8 @@ def main():
     axes[1].legend()
 
     plt.tight_layout()
-    plt.savefig(f"{PROJECT}/{RUN_NAME}/training_curve.png", dpi=150)
-    print(f"학습 곡선 저장: {PROJECT}/{RUN_NAME}/training_curve.png")
+    plt.savefig(save_dir / "training_curve.png", dpi=150)
+    print(f"학습 곡선 저장: {save_dir}/training_curve.png")
 
 
 if __name__ == "__main__":
