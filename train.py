@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from datetime import datetime
 
-DATA_YAML = "data/data_v2.yaml"  # 층화 재분할본 (train_v2/valid_v2/test_v2), 데이터 유출 없는 공정한 검증용
+DATA_YAML = "data/data.yaml"  # 층화 재분할된 데이터셋 (2026-08-03부터 기본값으로 승격, 데이터 유출 없음)
 MODEL     = "yolo26n.pt"       # YOLO26 nano — YOLO11n과 연산량 동일, 차세대 아키텍처(recall/CPU속도 개선 기대)
 EPOCHS    = 50
 IMG_SIZE  = 640

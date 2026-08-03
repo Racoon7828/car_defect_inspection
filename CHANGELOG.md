@@ -296,3 +296,16 @@ ultralytics 버전 업그레이드로 인해 `data.yaml`(이 `data/` 폴더 안�
 - `runs/detect/val`, `val-2`~`val-5` (데이터 유출로 무효 처리된 예전 검증 결과물)
 
 `runs/detect/runs/train_20260803_1918/`(v2 최종 학습)과 `runs/detect/val-6/`(v2 최종 검증 결과물)는 보존.
+
+### v2 데이터셋을 기본값으로 승격
+
+v2는 v1(옛 train+valid+test)을 그대로 풀(pool)로 모아 재배열한 것이라 이미지 손실 없음을 확인 후 진행.
+
+- `data/train`, `data/valid`, `data/test`(v1) 삭제
+- `data/train_v2` → `train`, `valid_v2` → `valid`, `test_v2` → `test`로 이름 변경 (12,843 / 1,551 / 1,575장)
+- `data/data_v2.yaml` 삭제 — `data/data.yaml`이 기존 경로(`train/images` 등) 그대로 v2 내용을 가리키므로 별도 yaml 불필요
+- `train.py`의 `DATA_YAML`을 `data/data.yaml`로 원복
+- `merge_datasets.py`, `augment.py`는 수정 없이도 `data/train/`을 그대로 참조하므로 자동으로 v2 기준으로 동작
+- `check_det_dataset`으로 경로 해석 및 이미지 개수 재검증 완료
+
+이제부터 `data/`는 유출 없는 층화 재분할본이 기본값임. 옛 v1 기준으로 학습된 `runs/train_3`(YOLO11n, 배포 모델)과의 재현은 더 이상 불가하지만, 관련 수치는 REVIEW.md/MODEL_COMPARISON.md/CHANGELOG.md에 이미 기록되어 있어 히스토리 손실 없음.
