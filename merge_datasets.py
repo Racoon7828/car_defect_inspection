@@ -136,8 +136,9 @@ def merge_dataset(ds_folder: str, class_map: dict, existing_hashes: set):
                 skipped_cls += 1
                 continue
 
-            # 파일명 중복 방지
-            new_stem = img_path.stem + f"_{ds_folder[:8].replace('.','')}"
+            # 파일명 중복 방지 — 폴더 전체 경로를 해시해 접미사 충돌 방지 (split도 포함)
+            ds_hash = hashlib.md5(ds_folder.encode()).hexdigest()[:8]
+            new_stem = f"{img_path.stem}_{ds_hash}_{split}"
             new_img_name   = new_stem + img_path.suffix
             new_label_name = new_stem + ".txt"
 

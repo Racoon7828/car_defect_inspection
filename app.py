@@ -38,6 +38,12 @@ if uploaded:
         st.error("이미지를 읽을 수 없습니다. 유효한 JPG/PNG 파일을 업로드하세요.")
         st.stop()
 
+    MIN_SIZE = 100  # px — 이보다 작으면 오탐 위험이 커서 차단
+    h, w = img_bgr.shape[:2]
+    if h < MIN_SIZE or w < MIN_SIZE:
+        st.error(f"이미지가 너무 작습니다 ({w}x{h}). 최소 {MIN_SIZE}x{MIN_SIZE} 이상 업로드하세요.")
+        st.stop()
+
     results = model.predict(img_bgr, conf=conf_threshold, verbose=False)
     vis = draw_results(img_bgr, results)
 
