@@ -28,3 +28,9 @@ results/*
 *.log
 .DS_Store
 Thumbs.db
+
+# 사용된 데이터 zip파일
+data.zip
+
+# 클로드 규칙 관련
+Claude.md

@@ -11,7 +11,7 @@ import pandas as pd
 from datetime import datetime
 
 DATA_YAML = "data/data.yaml"
-MODEL     = "yolo11n.pt"       # nano: 가볍고 빠름 / yolo11s.pt: 조금 더 정확
+MODEL     = "yolo26n.pt"       # YOLO26 nano — YOLO11n과 연산량 동일, 차세대 아키텍처(recall/CPU속도 개선 기대)
 EPOCHS    = 50
 IMG_SIZE  = 640
 PROJECT   = "runs"
