@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+venv/
+.venv/
+env/
+.env
+
+# Dataset (2GB+, re-downloadable from Roboflow — see README)
+data/
+
+# Pretrained base weights (auto-downloaded by ultralytics on first run)
+yolo11n.pt
+yolo26n.pt
+
+# Training runs — keep only the deployed model weights
+runs/*
+!runs/train_3/
+runs/train_3/*
+!runs/train_3/weights/
+runs/train_3/weights/*
+!runs/train_3/weights/best.pt
+
+# Misc
+results/*
+!results/.gitkeep
+*.log
+.DS_Store
+Thumbs.db
