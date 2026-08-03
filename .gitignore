@@ -22,6 +22,21 @@ runs/train_3/*
 runs/train_3/weights/*
 !runs/train_3/weights/best.pt
 
+!runs/damage_type_classifier/
+runs/damage_type_classifier/*
+!runs/damage_type_classifier/best.pt
+
+# 현재 배포 모델 (YOLO11n, v2 재학습, test mAP50 0.827)
+!runs/detect/
+runs/detect/*
+!runs/detect/runs/
+runs/detect/runs/*
+!runs/detect/runs/train_20260804_0217/
+runs/detect/runs/train_20260804_0217/*
+!runs/detect/runs/train_20260804_0217/weights/
+runs/detect/runs/train_20260804_0217/weights/*
+!runs/detect/runs/train_20260804_0217/weights/best.pt
+
 # Misc
 results/*
 !results/.gitkeep
@@ -31,6 +46,10 @@ Thumbs.db
 
 # 사용된 데이터 zip파일
 data.zip
+
+# CarDD 손상 종류 분류용 데이터 (대용량, 별도 다운로드/빌드로 재현 가능)
+cardd_raw/
+damage_type_crops/
 
 # 클로드 규칙 관련
 Claude.md
