@@ -405,3 +405,14 @@ YOLO11n과 YOLO26n의 v2 기준 정확도가 사실상 동률로 확인됨에 �
 - README.md의 `CHANGELOG.md` 링크·구조도를 `docs/CHANGELOG.md` 기준으로 갱신
 - `.gitignore`의 `Claude.md` 제외 규칙은 슬래시 없는 패턴이라 `docs/Claude.md`도 그대로 자동 적용됨을 `git check-ignore`로 확인 — 별도 수정 불필요
 - 다른 문서(MODEL_COMPARISON.md, REVIEW.md)의 `CHANGELOG.md` 언급은 실제 마크다운 링크가 아니라 본문 텍스트라 경로 수정 불필요
+
+---
+
+## README.md — 스크립트별 용도 및 재학습 방법 문서화
+
+1단계(부위 탐지)와 2단계(손상 종류 분류)가 완전히 독립된 파이프라인이라, 처음부터 재학습하려면 `scripts/train.py`와 `scripts/train_damage_type.py`를 각각 실행해야 함을 명확히 문서화.
+
+- README.md에 "스크립트별 용도 및 재학습 방법" 섹션 신설 — 1단계/2단계 스크립트를 표로 정리하고 각각 언제 쓰는지, 필수/선택 여부 명시
+- "처음부터 전부 재학습하려면" 예시 명령어 추가 (`train.py`만 돌리면 손상 종류 분류기는 기존 것이 그대로 쓰인다는 점 강조)
+- `damage_type_crops.zip`(2단계 학습 데이터) Google Drive 다운로드 안내를 데이터셋 섹션에 추가
+- "실행 순서" 섹션도 `train_damage_type.py` 누락되어 있던 것 반영
