@@ -9,25 +9,25 @@ import shutil
 import hashlib
 from pathlib import Path
 
-# 기준 클래스 (17종)
+# 기준 클래스 (16종). Bodypanel-Dent는 원본 데이터셋의 라벨링 오류(배경을 가리키는 1px 점)로
+# 판명되어 제거됨 — 상세 경위는 docs/DEFECT_CLASSES.md, docs/REVIEW.md 참고.
 OUR_CLASSES = [
-    'Bodypanel-Dent',           # 0
-    'Front-Windscreen-Damage',  # 1
-    'Headlight-Damage',         # 2
-    'Rear-windscreen-Damage',   # 3
-    'RunningBoard-Dent',        # 4
-    'Sidemirror-Damage',        # 5
-    'Signlight-Damage',         # 6
-    'Taillight-Damage',         # 7
-    'bonnet-dent',              # 8
-    'boot-dent',                # 9
-    'doorouter-dent',           # 10
-    'fender-dent',              # 11
-    'front-bumper-dent',        # 12
-    'pillar-dent',              # 13
-    'quaterpanel-dent',         # 14
-    'rear-bumper-dent',         # 15
-    'roof-dent',                # 16
+    'Front-Windscreen-Damage',  # 0
+    'Headlight-Damage',         # 1
+    'Rear-windscreen-Damage',   # 2
+    'RunningBoard-Dent',        # 3
+    'Sidemirror-Damage',        # 4
+    'Signlight-Damage',         # 5
+    'Taillight-Damage',         # 6
+    'bonnet-dent',              # 7
+    'boot-dent',                # 8
+    'doorouter-dent',           # 9
+    'fender-dent',              # 10
+    'front-bumper-dent',        # 11
+    'pillar-dent',              # 12
+    'quaterpanel-dent',         # 13
+    'rear-bumper-dent',         # 14
+    'roof-dent',                # 15
 ]
 OUR_CLASS_MAP = {name: idx for idx, name in enumerate(OUR_CLASSES)}
 
@@ -77,7 +77,7 @@ DATASET_MAPS = {
         22: OUR_CLASS_MAP['doorouter-dent'],
         23: OUR_CLASS_MAP['fender-dent'],
         24: OUR_CLASS_MAP['front-bumper-dent'],
-        25: OUR_CLASS_MAP['Bodypanel-Dent'],    # medium-Bodypanel-Dent → Bodypanel-Dent
+        25: None,   # medium-Bodypanel-Dent → 대응 클래스 없음 (Bodypanel-Dent 제거됨)
         26: OUR_CLASS_MAP['pillar-dent'],
         27: OUR_CLASS_MAP['quaterpanel-dent'],
         28: OUR_CLASS_MAP['rear-bumper-dent'],

@@ -16,26 +16,21 @@ yolo26n.pt
 
 # Training runs — keep only the deployed model weights
 runs/*
-!runs/train_3/
-runs/train_3/*
-!runs/train_3/weights/
-runs/train_3/weights/*
-!runs/train_3/weights/best.pt
 
 !runs/damage_type_classifier/
 runs/damage_type_classifier/*
 !runs/damage_type_classifier/best.pt
 
-# 현재 배포 모델 (YOLO11n, v2 재학습, test mAP50 0.827)
+# 현재 배포 모델 (YOLO11n, 16종 Bodypanel-Dent 제거 재학습, test mAP50 0.887)
 !runs/detect/
 runs/detect/*
 !runs/detect/runs/
 runs/detect/runs/*
-!runs/detect/runs/train_20260804_0217/
-runs/detect/runs/train_20260804_0217/*
-!runs/detect/runs/train_20260804_0217/weights/
-runs/detect/runs/train_20260804_0217/weights/*
-!runs/detect/runs/train_20260804_0217/weights/best.pt
+!runs/detect/runs/train_20260804_1124/
+runs/detect/runs/train_20260804_1124/*
+!runs/detect/runs/train_20260804_1124/weights/
+runs/detect/runs/train_20260804_1124/weights/*
+!runs/detect/runs/train_20260804_1124/weights/best.pt
 
 # Misc
 results/*

@@ -29,7 +29,7 @@ SEED            = 42
 AUG_SUFFIX_RE = re.compile(r"_aug\d+_\d+$")
 
 CLASS_NAMES = [
-    'Bodypanel-Dent', 'Front-Windscreen-Damage', 'Headlight-Damage',
+    'Front-Windscreen-Damage', 'Headlight-Damage',
     'Rear-windscreen-Damage', 'RunningBoard-Dent', 'Sidemirror-Damage',
     'Signlight-Damage', 'Taillight-Damage', 'bonnet-dent', 'boot-dent',
     'doorouter-dent', 'fender-dent', 'front-bumper-dent', 'pillar-dent',

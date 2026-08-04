@@ -17,7 +17,7 @@ TARGET_COUNT    = 200  # 클래스당 목표 수량
 SEED            = 42
 
 CLASS_NAMES = [
-    'Bodypanel-Dent', 'Front-Windscreen-Damage', 'Headlight-Damage',
+    'Front-Windscreen-Damage', 'Headlight-Damage',
     'Rear-windscreen-Damage', 'RunningBoard-Dent', 'Sidemirror-Damage',
     'Signlight-Damage', 'Taillight-Damage', 'bonnet-dent', 'boot-dent',
     'doorouter-dent', 'fender-dent', 'front-bumper-dent', 'pillar-dent',

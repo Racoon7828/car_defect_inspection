@@ -18,14 +18,15 @@ YOLO + OpenCV + pandas를 활용한 차체 외관 불량 검출 포트폴리오 
 
 | 모델 | 경로 | 용도 | mAP50 | mAP50-95 | Precision | Recall | git 포함 |
 |---|---|---|---|---|---|---|---|
-| YOLO11n (v2) | `runs/detect/runs/train_20260804_0217/weights/best.pt` | **배포 중** | 0.827 | 0.706 | 0.820 | 0.803 | O |
-| YOLO26n (v2) | `runs/detect/runs/train_20260803_1918/weights/best.pt` | 비교용 (미배포, 속도 1.6배 느려 보류) | 0.830 | 0.707 | 0.835 | 0.796 | X (문서만) |
+| YOLO11n (16종) | `runs/detect/runs/train_20260804_1124/weights/best.pt` | **배포 중** | 0.887 | 0.750 | 0.912 | 0.824 | O |
+| YOLO11n (17종, 구버전) | 체크포인트 삭제됨(수치만 기록) | 과거 기록(Bodypanel-Dent 포함) | 0.827 | 0.706 | 0.820 | 0.803 | X |
+| YOLO26n (17종, 구버전) | 체크포인트 삭제됨(수치만 기록) | 비교용, 미배포(속도 1.6배 느림) | 0.830 | 0.707 | 0.835 | 0.796 | X (문서만) |
 
 ### 2단계 — 손상 종류 분류 (ResNet18)
 
 | 모델 | 경로 | 용도 | 정확도 | Precision(macro) | Recall(macro) | F1(macro) | git 포함 |
 |---|---|---|---|---|---|---|---|
-| ResNet18 | `runs/damage_type_classifier/best.pt` | **배포 중** | 0.8345 | 0.838 | 0.851 | 0.843 | O |
+| ResNet18 | `runs/damage_type_classifier/best.pt` | **배포 중** | 0.8150 | 0.815 | 0.829 | 0.819 | O |
 
 ### 지표 설명
 
@@ -68,9 +69,9 @@ data/
 새로운 데이터셋을 추가 병합하려면 [CHANGELOG.md](docs/CHANGELOG.md)와 `scripts/merge_datasets.py` 상단의 `DATASET_MAPS`를 참고하세요.
 
 **2단계(손상 종류 분류)용 데이터**(`damage_type_crops/`, CarDD 기반)도 마찬가지로 GitHub엔 없습니다.
-아래 링크에서 `damage_type_crops.zip`을 받아 프로젝트 루트에 압축 해제하세요(`damage_type_crops/{train,val,test}/<class>/*.jpg` 구조로 바로 풀림).
+`damage_type_crops.zip`은 위 `data.zip`과 같은 Google Drive 폴더에 함께 올라가 있습니다. 받아서 프로젝트 루트에 압축 해제하세요(`damage_type_crops/{train,val,test}/<class>/*.jpg` 구조로 바로 풀림).
 
-> Google Drive 링크: `<여기에 공유 링크 채워넣기>`
+> Google Drive 링크: `https://drive.google.com/drive/folders/1la-QzMW4ebgyVjLn5z6F2hTP7OepXctb?usp=sharing`
 
 ## 실행 순서
 
@@ -78,7 +79,7 @@ data/
 # 1. 패키지 설치
 pip install -r requirements.txt
 
-# 2. 데모만 볼 경우 — data/ 없이 바로 실행 가능 (배포 모델: YOLO11n v2, test mAP50 0.827)
+# 2. 데모만 볼 경우 — data/ 없이 바로 실행 가능 (배포 모델: YOLO11n 16종, test mAP50 0.887)
 streamlit run app.py
 
 # 3. 재학습하려면 먼저 data.zip / damage_type_crops.zip을 받아 풀어넣은 뒤 (항상 프로젝트 루트에서 실행)
@@ -140,7 +141,7 @@ car_defect_inspection/
 │   ├── REVIEW.md                    # 코드 리뷰 및 수정 이력
 │   ├── MODEL_COMPARISON.md          # YOLO11n vs YOLO26n 비교
 │   ├── DAMAGE_TYPE_CLASSIFIER.md    # 2단계 분류기 상세 문서
-│   ├── DEFECT_CLASSES.md            # 17개 탐지 클래스 정리
+│   ├── DEFECT_CLASSES.md            # 16개 탐지 클래스 정리
 │   ├── CHANGELOG.md                 # 개발 변경 이력
 │   └── Claude.md                    # Claude Code 작업 규칙
 ├── data/                         # (미포함, 별도 다운로드) 병합·재분할된 학습 데이터

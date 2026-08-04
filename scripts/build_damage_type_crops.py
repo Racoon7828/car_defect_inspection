@@ -8,6 +8,11 @@ CarDD(cardd_raw) 라벨(bbox+폴리곤 혼합)에서 손상 부위를 crop하여
 - 폴리곤 라벨은 min/max 좌표로 axis-aligned bbox 변환 후 crop
 - crop 시 여백(PAD_RATIO) 추가
 
+(2026-08-04: crack처럼 원래 작은 박스에 최소 절대 crop 크기(128px)를 강제하는 방식을 시도했으나,
+ 배경/주변 차체가 과하게 딸려 들어가 신호가 희석되어 test 정확도가 오히려 하락(0.8345→0.7811,
+ 특히 crack F1 0.710→0.391)함을 확인 — 원래의 비율 기반 padding으로 되돌림.
+ 상세 경위는 DAMAGE_TYPE_CLASSIFIER.md 참고)
+
 사용법: python build_damage_type_crops.py
 """
 import random

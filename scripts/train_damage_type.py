@@ -15,11 +15,12 @@ from torchvision import datasets, models, transforms
 
 DATA_DIR   = Path("damage_type_crops")
 OUT_DIR    = Path("runs/damage_type_classifier")
-IMG_SIZE   = 224
+IMG_SIZE   = 224   # 320으로 올렸다가 crop 변경과 맞물려 성능이 떨어져 원복 (DAMAGE_TYPE_CLASSIFIER.md 참고)
 BATCH_SIZE = 32
 EPOCHS     = 20
 PATIENCE   = 5
 LR         = 1e-3
+FOCAL_GAMMA = 2.0  # focal loss 집중도 (클수록 어려운 샘플에 더 집중)
 SEED       = 42
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -45,6 +46,29 @@ def build_model(num_classes: int) -> nn.Module:
     model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
     model.fc = nn.Linear(model.fc.in_features, num_classes)
     return model.to(DEVICE)
+
+
+class FocalLoss(nn.Module):
+    """어려운(헷갈리는) 샘플에 더 집중하도록 CrossEntropy를 보정. crack/dent/scratch처럼
+    클래스 간 유사도가 높은 경우 일반 CE보다 효과적 (DAMAGE_TYPE_CLASSIFIER.md 참고)"""
+
+    def __init__(self, weight=None, gamma: float = 2.0):
+        super().__init__()
+        self.weight = weight
+        self.gamma = gamma
+
+    def forward(self, inputs, targets):
+        # pt(모델 확신도)는 가중치 없는 순수 CE로 계산해야 함 — weight를 여기 섞으면
+        # 가중치가 큰/작은 클래스의 pt가 왜곡되어 focal term이 이중으로 잘못 작용함
+        ce_loss = nn.functional.cross_entropy(inputs, targets, reduction="none")
+        pt = torch.exp(-ce_loss)
+        focal_term = (1 - pt) ** self.gamma
+
+        loss = focal_term * ce_loss
+        if self.weight is not None:
+            alpha_t = self.weight[targets]
+            loss = alpha_t * loss
+        return loss.mean()
 
 
 def run_epoch(model, loader, criterion, optimizer=None):
@@ -89,7 +113,7 @@ def main():
     val_loader   = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=False, num_workers=4)
 
     model = build_model(len(class_names))
-    criterion = nn.CrossEntropyLoss(weight=weights.to(DEVICE))
+    criterion = FocalLoss(weight=weights.to(DEVICE), gamma=FOCAL_GAMMA)
     optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 
     history = {"train_loss": [], "val_loss": [], "train_acc": [], "val_acc": []}

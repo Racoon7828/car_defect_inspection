@@ -175,4 +175,6 @@ FileNotFoundError: [Errno 2] No such file or directory: 'runs/train_20260803_191
 3. 학습 속도는 YOLO11n이 유리(약 1.6배 빠름), CPU 추론 속도는 미검증(YOLO26n이 유리할 가능성 있음 — 추후 확인 필요)
 4. **배포 모델 선택은 "정확도"가 아니라 "배포 환경(GPU 유무)"과 "학습 속도" 기준으로 결정하는 게 합리적** — GPU 있는 서버라면 YOLO11n(검증된 생태계, 빠른 재학습), CPU 전용(Spaces 무료 티어 등)이라면 YOLO26n 고려
 5. Bodypanel-Dent 신규 데이터 수집이 최우선 과제(모델 선택과 무관), boot-dent/Signlight-Damage/RunningBoard-Dent 순으로 보강 필요
-6. 사용 가능한 최종 체크포인트: YOLO11n v2 `runs/detect/runs/train_20260804_0217/weights/best.pt`, YOLO26n v2 `runs/detect/runs/train_20260803_1918/weights/best.pt`
+6. 최종 체크포인트(YOLO11n v2 `train_20260804_0217`, YOLO26n v2 `train_20260803_1918`)는 16종 재학습 이후 디스크 정리 과정에서 삭제됨 — 수치는 위 표에 보존
+
+> **참고(2026-08-04 이후)**: 위 비교는 모두 Bodypanel-Dent를 포함한 17종 스키마 기준이다. 이후 Bodypanel-Dent가 라벨링 오류로 판명되어 제거되면서(경위는 [DEFECT_CLASSES.md](DEFECT_CLASSES.md), [CHANGELOG.md](CHANGELOG.md) 참고), 배포 모델은 16종으로 재학습한 `runs/detect/runs/train_20260804_1124/weights/best.pt`(test mAP50 0.887)로 교체되었다. 이 문서의 아키텍처 선택 결론(YOLO11n vs YOLO26n) 자체는 여전히 유효하나, 표에 적힌 수치들은 17종 스키마 기준 과거 기록임에 유의.

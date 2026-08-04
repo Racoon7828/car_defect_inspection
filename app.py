@@ -18,13 +18,13 @@ from src.preprocessing import draw_results, resize_for_display
 # 실행 시 작업 디렉토리(cwd)가 프로젝트 폴더가 아니어도 항상 이 스크립트 기준 경로를 쓰도록 함
 BASE_DIR = Path(__file__).resolve().parent
 
-MODEL_PATH = BASE_DIR / "runs/detect/runs/train_20260804_0217/weights/best.pt"  # YOLO11n, v2(유출 없는 재분할) 재학습, test mAP50 0.827
+MODEL_PATH = BASE_DIR / "runs/detect/runs/train_20260804_1124/weights/best.pt"  # YOLO11n, 16종(Bodypanel-Dent 제거) 재학습, test mAP50 0.887
 FALLBACK   = "yolo11n.pt"   # 학습 전 테스트용 기본 모델 (ultralytics가 이름만으로 자동 다운로드)
 
-# 2단계 손상 종류 분류기 (train_damage_type.py로 학습, test acc 0.8345)
+# 2단계 손상 종류 분류기 (train_damage_type.py로 학습, test acc 0.8150)
 DAMAGE_TYPE_MODEL_PATH = BASE_DIR / "runs/damage_type_classifier/best.pt"
-DAMAGE_TYPE_IMG_SIZE = 224
-DAMAGE_TYPE_PAD_RATIO = 0.15  # 학습 때 crop 여백과 동일하게 맞춤 (build_damage_type_crops.py)
+DAMAGE_TYPE_IMG_SIZE = 224  # train_damage_type.py와 동일
+DAMAGE_TYPE_PAD_RATIO = 0.15  # 학습 때 crop 여백과 동일하게 맞춤 (scripts/build_damage_type_crops.py)
 
 DAMAGE_TYPE_KOREAN = {
     "crack": "균열",
@@ -38,7 +38,6 @@ DAMAGE_TYPE_KOREAN = {
 # 부위명 영→한 표시 매핑 (DEFECT_CLASSES.md 기준). 손상 종류(찌그러짐/파손 등)는 2단계 분류기가 "손상 종류" 열로
 # 별도 표시하므로, 여기서는 부위명만 남기고 중복되는 손상 상태 표현은 뺌.
 KOREAN_NAMES = {
-    "Bodypanel-Dent": "차체 패널",
     "Front-Windscreen-Damage": "전면 유리",
     "Headlight-Damage": "전조등",
     "Rear-windscreen-Damage": "후면 유리",
@@ -139,10 +138,10 @@ if uploaded:
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("원본")
-        st.image(cv2.cvtColor(resize_for_display(img_bgr), cv2.COLOR_BGR2RGB), use_container_width=True)
+        st.image(cv2.cvtColor(resize_for_display(img_bgr), cv2.COLOR_BGR2RGB), width="stretch")
     with col2:
         st.subheader("검출 결과")
-        st.image(cv2.cvtColor(resize_for_display(vis), cv2.COLOR_BGR2RGB), use_container_width=True)
+        st.image(cv2.cvtColor(resize_for_display(vis), cv2.COLOR_BGR2RGB), width="stretch")
 
     # 탐지 결과 요약
     boxes = results[0].boxes
@@ -161,4 +160,4 @@ if uploaded:
                 for b in boxes
             ]
         df = pd.DataFrame(data)
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df, width="stretch")

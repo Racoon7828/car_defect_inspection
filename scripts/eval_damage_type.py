@@ -11,7 +11,7 @@ from torchvision import datasets, models, transforms
 
 DATA_DIR   = Path("damage_type_crops")
 CKPT_PATH  = Path("runs/damage_type_classifier/best.pt")
-IMG_SIZE   = 224
+IMG_SIZE   = 224  # train_damage_type.py와 동일하게 맞춤
 BATCH_SIZE = 32
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
