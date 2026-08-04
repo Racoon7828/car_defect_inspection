@@ -416,3 +416,18 @@ YOLO11n과 YOLO26n의 v2 기준 정확도가 사실상 동률로 확인됨에 �
 - "처음부터 전부 재학습하려면" 예시 명령어 추가 (`train.py`만 돌리면 손상 종류 분류기는 기존 것이 그대로 쓰인다는 점 강조)
 - `damage_type_crops.zip`(2단계 학습 데이터) Google Drive 다운로드 안내를 데이터셋 섹션에 추가
 - "실행 순서" 섹션도 `train_damage_type.py` 누락되어 있던 것 반영
+
+---
+
+## README.md — 모델 성능 요약 표 추가
+
+프로젝트에 존재하는 `best.pt` 체크포인트(YOLO11n v2, YOLO26n v2, ResNet18)의 성능 수치와 git 포함 여부를 한눈에 볼 수 있는 표를 README.md에 추가.
+
+- YOLO11n(v1, 구버전 `runs/train_3`)은 유출 있는 옛 분할 기준이라 다른 모델과 나란히 비교하면 오해 소지가 있어 표에서 제외(과거 기록은 REVIEW.md/CHANGELOG에 그대로 남아있음)
+- 각 모델의 상세 근거는 MODEL_COMPARISON.md/DAMAGE_TYPE_CLASSIFIER.md로 링크
+
+### 지표 세분화 및 설명 추가
+
+- mAP50만 있던 표에 mAP50-95, Precision, Recall 열 추가 (1단계), 분류기(2단계)는 정확도 + macro Precision/Recall/F1로 별도 표 구성
+- ResNet18의 macro Precision/Recall/F1은 DAMAGE_TYPE_CLASSIFIER.md의 클래스별 수치(6개 클래스)를 단순 평균해 계산: P 0.838, R 0.851, F1 0.843 — 이전 표에 잘못 기입되어 있던 YOLO26n 수치(0.835/0.796)를 올바른 값으로 정정
+- "지표 설명" 섹션 신설 — mAP50/mAP50-95/Precision/Recall(탐지)과 정확도/macro P·R·F1(분류)의 의미를 각각 설명

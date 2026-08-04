@@ -10,6 +10,35 @@ YOLO + OpenCV + pandas를 활용한 차체 외관 불량 검출 포트폴리오 
 - pandas / matplotlib — 불량률 통계 분석
 - Streamlit — 데모 UI
 
+## 모델 성능 요약
+
+모든 수치는 유출 없는 test셋 기준(자세한 내용은 [docs/MODEL_COMPARISON.md](docs/MODEL_COMPARISON.md), [docs/DAMAGE_TYPE_CLASSIFIER.md](docs/DAMAGE_TYPE_CLASSIFIER.md) 참고).
+
+### 1단계 — 부위 탐지 (YOLO)
+
+| 모델 | 경로 | 용도 | mAP50 | mAP50-95 | Precision | Recall | git 포함 |
+|---|---|---|---|---|---|---|---|
+| YOLO11n (v2) | `runs/detect/runs/train_20260804_0217/weights/best.pt` | **배포 중** | 0.827 | 0.706 | 0.820 | 0.803 | O |
+| YOLO26n (v2) | `runs/detect/runs/train_20260803_1918/weights/best.pt` | 비교용 (미배포, 속도 1.6배 느려 보류) | 0.830 | 0.707 | 0.835 | 0.796 | X (문서만) |
+
+### 2단계 — 손상 종류 분류 (ResNet18)
+
+| 모델 | 경로 | 용도 | 정확도 | Precision(macro) | Recall(macro) | F1(macro) | git 포함 |
+|---|---|---|---|---|---|---|---|
+| ResNet18 | `runs/damage_type_classifier/best.pt` | **배포 중** | 0.8345 | 0.838 | 0.851 | 0.843 | O |
+
+### 지표 설명
+
+**1단계(탐지) 지표**
+- **mAP50**: IoU(겹침 정도) 0.5 기준으로 박스를 얼마나 잘 맞췄는지 나타내는 평균 정밀도. 탐지 모델의 대표 지표로 가장 널리 쓰임
+- **mAP50-95**: IoU 임계값을 0.5~0.95까지 촘촘히 바꿔가며 평균낸 값. 박스 위치까지 얼마나 정확한지 더 엄격하게 평가(mAP50보다 항상 낮게 나옴)
+- **Precision**: 모델이 "손상이다"라고 예측한 것 중 실제로 맞은 비율. 낮으면 오탐(False Positive)이 많다는 뜻
+- **Recall**: 실제 손상 중 모델이 놓치지 않고 찾아낸 비율. 낮으면 미탐(False Negative, 놓친 손상)이 많다는 뜻 — 불량 검사에서는 이게 낮으면 특히 위험
+
+**2단계(분류) 지표**
+- **정확도(Accuracy)**: 전체 예측 중 정답을 맞춘 비율 (test 973장 중 812장 정답)
+- **Precision/Recall/F1 (macro)**: 6개 클래스(dent/scratch/crack/glass shatter/lamp broken/tire flat) 각각의 지표를 단순 평균한 값. 클래스별 데이터 양 차이와 상관없이 "각 클래스를 얼마나 고르게 잘 맞히는지" 보여줌 (클래스별 상세 수치는 DAMAGE_TYPE_CLASSIFIER.md 참고)
+
 ## 데이터셋
 
 원본은 [Roboflow — Car Dent & Scratch Detection](https://universe.roboflow.com/sindhu/car_dent_scratch_detection-1)이지만,
