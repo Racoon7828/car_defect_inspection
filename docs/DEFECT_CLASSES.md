@@ -25,6 +25,35 @@
 
 **합계**: 16종, 총 23,408개 인스턴스 (data/train+valid+test 전체 기준)
 
+## 클래스별 탐지 성능 (16종 배포 모델, test셋 기준, 2026-08-04)
+
+`runs/detect/runs/train_20260804_1124/weights/best.pt`를 test셋(1,575장, 2,413 인스턴스)으로 재검증. mAP50 기준 낮은 순.
+
+| 클래스 | Precision | Recall | mAP50 | mAP50-95 |
+|---|---|---|---|---|
+| boot-dent | 0.616 | 0.304 | 0.277 | 0.110 |
+| RunningBoard-Dent | 0.905 | 0.596 | 0.740 | 0.574 |
+| fender-dent | 0.913 | 0.807 | 0.896 | 0.771 |
+| pillar-dent | 0.865 | 0.862 | 0.898 | 0.724 |
+| Signlight-Damage | 0.865 | 0.868 | 0.920 | 0.699 |
+| quaterpanel-dent | 0.941 | 0.829 | 0.924 | 0.785 |
+| bonnet-dent | 0.939 | 0.841 | 0.929 | 0.786 |
+| rear-bumper-dent | 0.947 | 0.890 | 0.934 | 0.829 |
+| Front-Windscreen-Damage | 0.985 | 0.865 | 0.939 | 0.781 |
+| doorouter-dent | 0.951 | 0.862 | 0.947 | 0.805 |
+| front-bumper-dent | 0.938 | 0.884 | 0.947 | 0.829 |
+| Taillight-Damage | 0.896 | 0.874 | 0.948 | 0.828 |
+| Headlight-Damage | 0.932 | 0.915 | 0.959 | 0.840 |
+| roof-dent | 0.922 | 0.889 | 0.961 | 0.840 |
+| Rear-windscreen-Damage | 0.990 | 0.922 | 0.979 | 0.885 |
+| Sidemirror-Damage | 0.985 | 0.971 | 0.989 | 0.911 |
+
+**전체 평균(macro)**: mAP50 0.887 / mAP50-95 0.750 / Precision 0.912 / Recall 0.824
+
+- **boot-dent이 압도적으로 가장 부족함**(mAP50 0.277, Recall 0.304) — 인스턴스 수가 243개로 16종 중 가장 적은 클래스와 정확히 일치. 데이터 보강이 최우선 과제
+- RunningBoard-Dent도 Recall(0.596)이 눈에 띄게 낮음 — boot-dent 다음으로 보강 필요성이 있음(인스턴스 967개로 적은 편은 아니라, 부위 특성상 각도에 따라 탐지가 어려운 것으로 추정 — 추가 조사 필요)
+- 나머지 14개 클래스는 mAP50 0.89 이상으로 고르게 우수함
+
 ## 제거된 클래스: Bodypanel-Dent (2026-08-04)
 
 원본 Roboflow 데이터셋의 **라벨링 오류**로 판명되어 제거함.

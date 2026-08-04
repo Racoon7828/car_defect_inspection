@@ -575,3 +575,12 @@ train/val/test 전 split에서 클래스별 crop 크기(짧은 변)를 조사한
   - `runs/detect/runs/train_20260804_0217`(YOLO11n v2, 17종 구버전, git 포함이었음 — `git rm`으로 함께 제거)
 - `.gitignore`에서 위 두 git 포함 체크포인트에 대한 예외 규칙 삭제
 - README.md/MODEL_COMPARISON.md에서 삭제된 체크포인트의 경로 표기를 "체크포인트 삭제됨(수치만 기록)"으로 수정
+
+---
+
+## 클래스별 성능 최신화 (2026-08-04)
+
+배포 중인 최신 모델(YOLO 16종 `train_20260804_1124`, 손상 종류 분류기 v4) 기준으로 클래스별 성능 문서를 갱신. 기존에 남아있던 클래스별 표는 옛 모델(17종 YOLO26n, 분류기 v1) 기준이라 지금 배포 모델과 실제로 달랐음.
+
+- YOLO: `model.val(data='data/data.yaml', split='test')`로 16종 모델 전체 클래스 재검증, 전체 지표(mAP50 0.8866 등)가 기존 기록과 정확히 일치함을 재확인(재현성 검증). `docs/DEFECT_CLASSES.md`에 클래스별 P/R/mAP50/mAP50-95 표 신설 — boot-dent(mAP50 0.277)가 가장 취약, RunningBoard-Dent(Recall 0.596)도 주의 필요
+- 손상 종류 분류기: `eval_damage_type.py` 재실행으로 v4 체크포인트의 클래스별 P/R/F1·confusion matrix 재확인(0.8150 재현). `docs/DAMAGE_TYPE_CLASSIFIER.md`의 "test셋 최종 평가" 섹션을 v1 수치에서 v4 수치로 교체하고, v1 대비 트레이드오프(crack Recall 개선, Precision 소폭 하락) 분석 추가

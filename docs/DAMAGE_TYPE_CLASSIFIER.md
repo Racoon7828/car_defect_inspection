@@ -47,24 +47,36 @@
 
 > **2026-08-04 갱신**: 이후 crop/해상도/focal loss 개선을 시도했다가 되돌리는 과정을 거쳐, **현재 배포된 모델은 v4(224px, 원본 crop 방식, focal loss만 적용)**입니다. v1 체크포인트는 실험 중 덮어써져 소실됨. 최종 결과는 아래 "개선 시도 결과" 섹션의 v4 행 참고 — test 정확도 0.8150.
 
-## test셋 최종 평가 (v1 기준 기록, 신뢰 가능, val과 별개의 held-out set)
+## test셋 최종 평가 (v4, 현재 배포 모델 기준, 2026-08-04 재검증)
 
-**종합 정확도: 812/973 = 0.8345**
+**종합 정확도: 793/973 = 0.8150** (`eval_damage_type.py` 재실행으로 재현 확인)
 
 | 클래스 | Precision | Recall | F1 | 개수 |
 |---|---|---|---|---|
-| glass shatter | 0.990 | 0.905 | 0.945 | 105 |
-| lamp broken | 0.832 | 0.952 | 0.888 | 83 |
-| tire flat | 0.889 | 0.889 | 0.889 | 9 |
-| scratch | 0.862 | 0.848 | 0.855 | 462 |
-| dent | 0.782 | 0.761 | 0.771 | 226 |
-| crack | 0.673 | 0.750 | 0.710 | 88 |
+| glass shatter | 0.929 | 0.876 | 0.902 | 105 |
+| lamp broken | 0.848 | 0.940 | 0.891 | 83 |
+| scratch | 0.882 | 0.794 | 0.836 | 462 |
+| tire flat | 0.875 | 0.778 | 0.824 | 9 |
+| dent | 0.722 | 0.792 | 0.755 | 226 |
+| crack | 0.636 | 0.795 | 0.707 | 88 |
+
+### Confusion Matrix (행=실제, 열=예측)
+
+|  | crack | dent | glass | lamp b | scratch | tire f |
+|---|---|---|---|---|---|---|
+| crack | 70 | 7 | 0 | 2 | 9 | 0 |
+| dent | 5 | 179 | 4 | 4 | 33 | 1 |
+| glass shatter | 2 | 2 | 92 | 3 | 6 | 0 |
+| lamp broken | 2 | 0 | 2 | 78 | 1 | 0 |
+| scratch | 31 | 58 | 1 | 5 | 367 | 0 |
+| tire flat | 0 | 2 | 0 | 0 | 0 | 7 |
 
 ### Confusion Matrix 분석
 
-- **glass shatter/lamp broken/tire flat은 매우 정확함** — 시각적으로 뚜렷이 구별되는 손상이라 예상대로 잘 분류됨
-- **crack/dent/scratch 간 혼동이 주요 오차 원인**: dent→scratch 45건, scratch→dent 39건, scratch→crack 21건, crack→scratch 14건. 세 유형 모두 "표면 손상"이라 각도·조명에 따라 시각적으로 애매한 경우가 실제로 존재함 — 데이터 품질보다는 태스크 자체의 본질적 난이도로 보임
-- crack의 Precision(0.673)이 가장 낮음 — 다른 유형을 crack으로 오분류하는 경우는 적지만(위 confusion matrix 참고), scratch를 crack으로 잘못 예측하는 경우가 상대적으로 많음(21건)
+- **glass shatter/lamp broken은 여전히 정확함** — 시각적으로 뚜렷이 구별되는 손상이라 예상대로 잘 분류됨
+- **crack/dent/scratch 간 혼동이 여전히 주요 오차 원인**: scratch→dent 58건, scratch→crack 31건, dent→scratch 33건, crack→scratch 9건. 세 유형 모두 "표면 손상"이라 각도·조명에 따라 시각적으로 애매한 경우가 실제로 존재함 — 데이터 품질보다는 태스크 자체의 본질적 난이도로 보임
+- v1(class-weighted CE) 대비 v4(focal loss)는 crack의 **Recall이 0.750→0.795로 개선**됐지만 **Precision은 0.673→0.636으로 소폭 하락** — focal loss가 소수 클래스(crack)에 더 강하게 그래디언트를 주는 대신, scratch를 crack으로 더 자주 오분류하는 트레이드오프가 생김(scratch→crack 오분류가 v1의 21건에서 v4는 31건으로 증가)
+- crack의 Precision(0.636)이 6개 클래스 중 가장 낮음 — scratch를 crack으로 잘못 예측하는 경우가 상대적으로 많은 것이 주 원인
 
 ## app.py 통합
 
